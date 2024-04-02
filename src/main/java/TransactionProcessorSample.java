@@ -1,3 +1,5 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -52,6 +54,17 @@ public class TransactionProcessorSample {
                 writer.append(event.transactionId).append(",").append(event.status).append(",").append(event.message).append("\n");
             }
         }
+    }
+
+    private static List<String[]> readCsvFile(Path filePath) throws IOException {
+        List<String[]> lines = new ArrayList<>();
+
+        BufferedReader br = new BufferedReader(new FileReader(filePath.toFile()));
+        String line;
+        while ((line = br.readLine()) != null) {
+            lines.add(line.split(","));
+        }
+        return lines;
     }
 }
 
