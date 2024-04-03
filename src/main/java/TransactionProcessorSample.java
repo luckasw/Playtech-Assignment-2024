@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 
 // This template shows input parameters format.
@@ -42,9 +41,19 @@ public class TransactionProcessorSample {
         return users;
     }
 
-    private static List<Transaction> readTransactions(final Path filePath) {
-        // ToDo Implementation
-        return new ArrayList<>();
+    private static List<Transaction> readTransactions(final Path filePath) throws IOException {
+        List<String[]> lines = readCsvFile(filePath);
+        List<Transaction> transactions = new ArrayList<>();
+        for (int i = 1; i < lines.size(); i++) {
+            String id = lines.get(i)[0];
+            String userId = lines.get(i)[1];
+            String type = lines.get(i)[2];
+            double amount = Double.parseDouble(lines.get(i)[3]);
+            String method = lines.get(i)[4];
+            String accountNumber = lines.get(i)[5];
+            transactions.add(new Transaction(id, userId, type, amount, method, accountNumber));
+        }
+        return transactions;
     }
 
     private static List<BinMapping> readBinMappings(final Path filePath) {
