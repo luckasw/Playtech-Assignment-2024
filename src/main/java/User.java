@@ -1,7 +1,5 @@
-import java.util.UUID;
-
 class User {
-    private final UUID id;
+    private final String id;
     private String name;
     private double balance;
     private String country;
@@ -11,7 +9,7 @@ class User {
     private double withdrawMin;
     private double withdrawMax;
 
-    public User(UUID id, String name, double balance, String country, boolean frozen, double depositMin, double depositMax, double withdrawMin, double withdrawMax) {
+    public User(String id, String name, double balance, String country, boolean frozen, double depositMin, double depositMax, double withdrawMin, double withdrawMax) {
         this.id = id;
         this.name = name;
         this.balance = balance;
@@ -23,7 +21,7 @@ class User {
         this.withdrawMax = withdrawMax;
     }
 
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 

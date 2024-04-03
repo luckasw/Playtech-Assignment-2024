@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 
 // This template shows input parameters format.
@@ -23,9 +24,22 @@ public class TransactionProcessorSample {
         TransactionProcessorSample.writeEvents(Paths.get(args[4]), events);
     }
 
-    private static List<User> readUsers(final Path filePath) {
-        // ToDo Implementation
-        return new ArrayList<>();
+    private static List<User> readUsers(final Path filePath) throws IOException {
+        List<String[]> lines = readCsvFile(filePath);
+        List<User> users = new ArrayList<>();
+        for (int i = 1; i < lines.size(); i++) {
+            String id = lines.get(i)[0];
+            String name = lines.get(i)[1];
+            double balance = Double.parseDouble(lines.get(i)[2]);
+            String country = lines.get(i)[3];
+            boolean frozen = Boolean.parseBoolean(lines.get(i)[4]);
+            double depositMin = Double.parseDouble(lines.get(i)[5]);
+            double depositMax = Double.parseDouble(lines.get(i)[6]);
+            double withdrawMin = Double.parseDouble(lines.get(i)[7]);
+            double withdrawMax = Double.parseDouble(lines.get(i)[8]);
+            users.add(new User(id, name, balance, country, frozen, depositMin, depositMax, withdrawMin, withdrawMax));
+        }
+        return users;
     }
 
     private static List<Transaction> readTransactions(final Path filePath) {

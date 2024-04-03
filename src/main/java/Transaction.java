@@ -1,14 +1,12 @@
-import java.util.UUID;
-
 class Transaction {
-    private final UUID id;
-    private final UUID userId;
+    private final String id;
+    private final String userId;
     private final String type;
     private final double amount;
     private final String currency;
     private final String accountNumber;
 
-    public Transaction(UUID id, UUID userId, String type, double amount, String currency, String accountNumber) {
+    public Transaction(String id, String userId, String type, double amount, String currency, String accountNumber) {
         this.id = id;
         this.userId = userId;
         this.type = type;
@@ -17,11 +15,11 @@ class Transaction {
         this.accountNumber = accountNumber;
     }
 
-    public UUID getId() {
+    public String getId() {
         return id;
     }
 
-    public UUID getUserId() {
+    public String getUserId() {
         return userId;
     }
 
