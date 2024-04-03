@@ -56,9 +56,18 @@ public class TransactionProcessorSample {
         return transactions;
     }
 
-    private static List<BinMapping> readBinMappings(final Path filePath) {
-        // ToDo Implementation
-        return new ArrayList<>();
+    private static List<BinMapping> readBinMappings(final Path filePath) throws IOException {
+        List<String[]> lines = readCsvFile(filePath);
+        List<BinMapping> binMappings = new ArrayList<>();
+        for (int i = 1; i < lines.size(); i++) {
+            String name = lines.get(i)[0];
+            String rangeFrom = lines.get(i)[1];
+            String rangeTo = lines.get(i)[2];
+            String type = lines.get(i)[3];
+            String country = lines.get(i)[4];
+            binMappings.add(new BinMapping(name, rangeFrom, rangeTo, type, country));
+        }
+        return binMappings;
     }
 
     private static List<Event> processTransactions(final List<User> users, final List<Transaction> transactions, final List<BinMapping> binMappings) {
