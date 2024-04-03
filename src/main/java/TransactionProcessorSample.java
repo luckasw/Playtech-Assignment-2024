@@ -69,10 +69,6 @@ public class TransactionProcessorSample {
 }
 
 
-class User {
-
-}
-
 class Transaction {
 
 }
