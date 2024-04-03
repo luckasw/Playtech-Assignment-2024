@@ -69,10 +69,6 @@ public class TransactionProcessorSample {
 }
 
 
-class Transaction {
-
-}
-
 class BinMapping {
 }
 
