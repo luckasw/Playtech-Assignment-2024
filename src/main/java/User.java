@@ -21,6 +21,14 @@ class User {
         this.withdrawMax = withdrawMax;
     }
 
+    public void freeze() {
+        frozen = true;
+    }
+
+    public void unfreeze() {
+        frozen = false;
+    }
+
     public void deposit(double amount) {
         balance += amount;
     }
@@ -59,10 +67,6 @@ class User {
 
     public boolean isFrozen() {
         return frozen;
-    }
-
-    public void setFrozen(boolean frozen) {
-        this.frozen = frozen;
     }
 
     public double getDepositMin() {
