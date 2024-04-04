@@ -35,16 +35,18 @@ public class TransactionProcessor {
 
     private static void writeBalances(final Path filePath, final List<User> users) throws IOException {
         try (final FileWriter writer = new FileWriter(filePath.toFile(), false)) {
-            writer.append("user_id,balance\n");
+            writer.append("USER_ID,BALANCE\n");
             for (final var user : users) {
-                writer.append(user.getId()).append(",").append(String.valueOf(user.getBalance())).append("\n");
+                String formattedBalance = String.format(Locale.US, "%.2f", user.getBalance());
+                writer.append(user.getId()).append(",").append(formattedBalance).append("\n");
+//                writer.append(user.getId()).append(",").append(String.valueOf(user.getBalance())).append("\n");
             }
         }
     }
 
     private static void writeEvents(final Path filePath, final List<Event> events) throws IOException {
         try (final FileWriter writer = new FileWriter(filePath.toFile(), false)) {
-            writer.append("transaction_id,status,message\n");
+            writer.append("TRANSACTION_ID,STATUS,MESSAGE\n");
             for (final var event : events) {
                 writer.append(event.transactionId).append(",").append(event.status).append(",").append(event.message).append("\n");
             }

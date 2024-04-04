@@ -210,7 +210,7 @@ public class TransactionHandler {
         if (card.getCardHolderId().equals(transaction.getUserId())) {
             return true;
         }
-        event.message = "Card " + transaction.getAccountNumber() + " is in use by other user";
+        event.message = "Account " + transaction.getAccountNumber() + " is in use by other user";
         events.add(event);
 
         return false;
@@ -285,7 +285,7 @@ public class TransactionHandler {
 
     private boolean checkUser(User user, Event event, Transaction transaction) {
         if (user == null) {
-            event.message = "User " + transaction.getUserId() + " not found";
+            event.message = "User " + transaction.getUserId() + " not found in Users";
             events.add(event);
             return false;
         } else if (user.isFrozen()) {

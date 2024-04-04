@@ -7,4 +7,5 @@ public class Event {
     public String transactionId;
     public String status;
     public String message;
+
 }

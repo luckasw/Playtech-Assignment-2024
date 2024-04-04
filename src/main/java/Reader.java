@@ -21,7 +21,8 @@ public class Reader {
             String countryCode = lines.get(i)[3];
             Locale locale = new Locale("en",countryCode);
             String country = locale.getISO3Country();
-            boolean frozen = Boolean.parseBoolean(lines.get(i)[4]);
+            String frozenStr = lines.get(i)[4];
+            boolean frozen = frozenStr.equals("1");
             double depositMin = Double.parseDouble(lines.get(i)[5]);
             double depositMax = Double.parseDouble(lines.get(i)[6]);
             double withdrawMin = Double.parseDouble(lines.get(i)[7]);
