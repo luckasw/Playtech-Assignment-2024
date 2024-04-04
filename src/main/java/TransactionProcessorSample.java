@@ -169,8 +169,13 @@ public class TransactionProcessorSample {
         return false;
     }
 
-    private static void writeBalances(final Path filePath, final List<User> users) {
-        // ToDo Implementation
+    private static void writeBalances(final Path filePath, final List<User> users) throws IOException {
+        try (final FileWriter writer = new FileWriter(filePath.toFile(), false)) {
+            writer.append("user_id,balance\n");
+            for (final var user : users) {
+                writer.append(user.getId()).append(",").append(String.valueOf(user.getBalance())).append("\n");
+            }
+        }
     }
 
     private static void writeEvents(final Path filePath, final List<Event> events) throws IOException {
