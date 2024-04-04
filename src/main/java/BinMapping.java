@@ -1,11 +1,11 @@
 class BinMapping {
     private final String name;
-    private final String rangeFrom;
-    private final String rangeTo;
+    private final Long rangeFrom;
+    private final Long rangeTo;
     private final String type;
     private final String country;
 
-    public BinMapping(String name, String rangeFrom, String rangeTo, String type, String country) {
+    public BinMapping(String name, Long rangeFrom, Long rangeTo, String type, String country) {
         this.name = name;
         this.rangeFrom = rangeFrom;
         this.rangeTo = rangeTo;
@@ -17,11 +17,11 @@ class BinMapping {
         return name;
     }
 
-    public String getRangeFrom() {
+    public Long getRangeFrom() {
         return rangeFrom;
     }
 
-    public String getRangeTo() {
+    public Long getRangeTo() {
         return rangeTo;
     }
 

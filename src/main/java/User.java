@@ -21,6 +21,14 @@ class User {
         this.withdrawMax = withdrawMax;
     }
 
+    public void deposit(double amount) {
+        balance += amount;
+    }
+
+    public void withdraw(double amount) {
+        balance -= amount;
+    }
+
     public String getId() {
         return id;
     }
