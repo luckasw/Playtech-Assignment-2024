@@ -1,4 +1,6 @@
-class Transaction {
+package Objects;
+
+public class Transaction {
     private final String id;
     private final String userId;
     private final String type;

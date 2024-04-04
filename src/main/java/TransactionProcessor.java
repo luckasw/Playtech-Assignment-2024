@@ -1,5 +1,5 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
+import Objects.*;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -38,18 +38,18 @@ public class TransactionProcessor {
             event.status = Event.STATUS_DECLINED;
             User user = findUserById(users, transaction.getUserId());
             if (user == null) {
-                event.message = "User " + transaction.getUserId() + " not found";
+                event.message = "Objects.User " + transaction.getUserId() + " not found";
                 events.add(event);
                 continue;
             }
             if (usedTransactionIds.contains(transaction.getId())) {
-                event.message = "Transaction " + transaction.getId() + " already processed (id non-unique)";
+                event.message = "Objects.Transaction " + transaction.getId() + " already processed (id non-unique)";
                 events.add(event);
                 continue;
             }
             usedTransactionIds.add(transaction.getId());
             if (user.isFrozen()) {
-                event.message = "User " + transaction.getUserId() + " is frozen";
+                event.message = "Objects.User " + transaction.getUserId() + " is frozen";
                 events.add(event);
                 continue;
             }
@@ -84,7 +84,7 @@ public class TransactionProcessor {
                         continue;
                     }
                     else if (!card.getCardHolderId().equals(user.getId())) {
-                        event.message = "Card " + transaction.getAccountNumber() + " is in use by other user";
+                        event.message = "Objects.Card " + transaction.getAccountNumber() + " is in use by other user";
                         events.add(event);
                         user.freeze();
                         continue;
@@ -100,7 +100,7 @@ public class TransactionProcessor {
                             continue;
                         }
                     } else if (!account.getAccuntHolderId().equals(user.getId())) {
-                        event.message = "Account " + transaction.getAccountNumber() + " is in use by other user";
+                        event.message = "Objects.Account " + transaction.getAccountNumber() + " is in use by other user";
                         events.add(event);
                         user.freeze();
                         continue;
@@ -141,7 +141,7 @@ public class TransactionProcessor {
                         continue;
                     }
                     if (!card.getCardHolderId().equals(user.getId())) {
-                        event.message = "Card " + transaction.getAccountNumber() + " is in use by other user";
+                        event.message = "Objects.Card " + transaction.getAccountNumber() + " is in use by other user";
                         events.add(event);
                         user.freeze();
                         continue;
@@ -161,7 +161,7 @@ public class TransactionProcessor {
                         continue;
                     }
                     if (!account.getAccuntHolderId().equals(user.getId())) {
-                        event.message = "Account " + transaction.getAccountNumber() + " is in use by other user";
+                        event.message = "Objects.Account " + transaction.getAccountNumber() + " is in use by other user";
                         events.add(event);
                         user.freeze();
                         continue;

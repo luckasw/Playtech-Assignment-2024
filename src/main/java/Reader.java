@@ -1,3 +1,7 @@
+import Objects.BinMapping;
+import Objects.Transaction;
+import Objects.User;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;

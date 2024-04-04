@@ -1,4 +1,6 @@
-class BinMapping {
+package Objects;
+
+public class BinMapping {
     private final String name;
     private final Long rangeFrom;
     private final Long rangeTo;
