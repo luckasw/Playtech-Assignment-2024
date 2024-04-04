@@ -103,7 +103,18 @@ public class TransactionProcessorSample {
             if (type.equals("DEPOSIT")) {
                 if (isWithinDepositRange(transaction, user, event, events)) continue;
                 if (method.equals("CARD")) {
-                    if (!iscardTypeDC(transaction.getAccountNumber(), binMappings, user)) {
+                    BinMapping binMapping = findBinMapping(transaction.getAccountNumber(), binMappings);
+                    if (binMapping == null) {
+                        event.message = "Invalid card number";
+                        events.add(event);
+                        continue;
+                    }
+                    if (!binMapping.getCountry().equals(user.getCountry())) {
+                        event.message = "Invalid country " + binMapping.getCountry() + "; expected " + user.getCountry();
+                        events.add(event);
+                        continue;
+                    }
+                    if (binMapping.getType().equals("DC")) {
                         event.message = "Only DC cards allowed";
                         events.add(event);
                         continue;
@@ -114,12 +125,30 @@ public class TransactionProcessorSample {
                     event.message = "OK";
                     events.add(event);
                 } else if (method.equals("TRANSFER")) {
-                    // ToDo Implementation
+                    if (!isCheckDigitValid(transaction.getAccountNumber())) {
+                        event.message = "Invalid iban " + transaction.getAccountNumber();
+                    }
+                    user.deposit(transaction.getAmount());
+                    usedTransactionIds.add(transaction.getId());
+                    event.status = Event.STATUS_APPROVED;
+                    event.message = "OK";
+                    events.add(event);
                 }
             }
             else if (type.equals("WITHDRAW")) {
                 if (isWithinWithdrawRange(transaction, user, event, events)) continue;
                 if (method.equals("CARD")) {
+                    BinMapping binMapping = findBinMapping(transaction.getAccountNumber(), binMappings);
+                    if (binMapping == null) {
+                        event.message = "Invalid card number";
+                        events.add(event);
+                        continue;
+                    }
+                    if (!binMapping.getCountry().equals(user.getCountry())) {
+                        event.message = "Invalid country " + binMapping.getCountry() + "; expected " + user.getCountry();
+                        events.add(event);
+                        continue;
+                    }
                     // ToDo Implementation
                 }
                 else if (method.equals("TRANSFER")) {
@@ -128,6 +157,26 @@ public class TransactionProcessorSample {
             }
         }
         return events;
+    }
+
+    private static boolean isCheckDigitValid(String accountNumber) {
+        // ToDo Implementation
+        return false;
+    }
+
+    private static BinMapping findBinMapping(String accountNumber, List<BinMapping> binMappings) {
+        try {
+            Long accountNumberLong = Long.valueOf(accountNumber);
+            accountNumberLong = accountNumberLong / 100000000;
+            for (BinMapping binMapping : binMappings) {
+                if (binMapping.getRangeFrom() <= accountNumberLong && accountNumberLong <= binMapping.getRangeTo()) {
+                    return binMapping;
+                }
+            }
+        } catch (NumberFormatException e) {
+            // ToDo Implementation
+        }
+        return null;
     }
 
     private static boolean isWithinDepositRange(Transaction transaction, User user, Event event, List<Event> events) {
@@ -154,17 +203,6 @@ public class TransactionProcessorSample {
             event.message = "Amount " + transaction.getAmount() + " is over the withdraw limit of " + user.getWithdrawMax();
             events.add(event);
             return true;
-        }
-        return false;
-    }
-
-    private static boolean iscardTypeDC(String accountNumber, List<BinMapping> binMappings, User user) {
-        Long accountNumberLong = Long.valueOf(accountNumber);
-        accountNumberLong = accountNumberLong / 100000000;
-        for (BinMapping binMapping : binMappings) {
-            if (binMapping.getRangeFrom() <= accountNumberLong && accountNumberLong <= binMapping.getRangeTo()) {
-                return binMapping.getType().equals("DC") && binMapping.getCountry().equals(user.getCountry());
-            }
         }
         return false;
     }
