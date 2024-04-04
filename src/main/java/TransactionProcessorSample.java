@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -83,15 +84,16 @@ public class TransactionProcessorSample {
             Event event = new Event();
             event.transactionId = transaction.getId();
             event.status = Event.STATUS_DECLINED;
-            if (usedTransactionIds.contains(transaction.getId())) {
-                event.message = "Transaction " + transaction.getId() + " already processed (id non-unique)";
-                events.add(event);
-                continue;
-            }
             User user = findUserById(users, transaction.getUserId());
             if (user == null) {
                 event.message = "User " + transaction.getUserId() + " not found";
                 events.add(event);
+                continue;
+            }
+            if (usedTransactionIds.contains(transaction.getId())) {
+                event.message = "Transaction " + transaction.getId() + " already processed (id non-unique)";
+                events.add(event);
+                user.freeze();
                 continue;
             }
             if (user.isFrozen()) {
@@ -111,16 +113,19 @@ public class TransactionProcessorSample {
                         if (binMapping == null) {
                             event.message = "Invalid card number";
                             events.add(event);
+                            user.freeze();
                             continue;
                         }
                         if (!binMapping.getCountry().equals(user.getCountry())) {
                             event.message = "Invalid country " + binMapping.getCountry() + "; expected " + user.getCountry();
                             events.add(event);
+                            user.freeze();
                             continue;
                         }
                         if (binMapping.getType().equals("DC")) {
                             event.message = "Only DC cards allowed";
                             events.add(event);
+                            user.freeze();
                             continue;
                         }
                         depositCard(usedTransactionIds, transaction, user, event, events);
@@ -131,6 +136,8 @@ public class TransactionProcessorSample {
                 } else if (method.equals("TRANSFER")) {
                     if (!isCheckDigitValid(transaction.getAccountNumber())) {
                         event.message = "Invalid iban " + transaction.getAccountNumber();
+                        events.add(event);
+                        user.freeze();
                     }
                     depositCard(usedTransactionIds, transaction, user, event, events);
                 }
@@ -149,11 +156,13 @@ public class TransactionProcessorSample {
                     if (binMapping == null) {
                         event.message = "Invalid card number";
                         events.add(event);
+                        user.freeze();
                         continue;
                     }
                     if (!binMapping.getCountry().equals(user.getCountry())) {
                         event.message = "Invalid country " + binMapping.getCountry() + "; expected " + user.getCountry();
                         events.add(event);
+                        user.freeze();
                         continue;
                     }
                     // ToDo Implementation
@@ -164,6 +173,7 @@ public class TransactionProcessorSample {
             }
             event.message = "Invalid transaction type " + type;
             events.add(event);
+            user.freeze();
         }
         return events;
     }
@@ -185,9 +195,19 @@ public class TransactionProcessorSample {
         return null;
     }
 
-    private static boolean isCheckDigitValid(String accountNumber) {
-        // ToDo Implementation
-        return false;
+    private static boolean isCheckDigitValid(String iban) {
+        iban = iban.substring(4) + iban.substring(0, 4);
+        String total = "";
+        for (int i = 0; i < iban.length(); i++) {
+            int value = Character.getNumericValue(iban.charAt(i));
+            if (value < 0 || value > 35) {
+                return false;
+            }
+            total += value;
+        }
+
+        BigInteger bigInt = new BigInteger(total);
+        return bigInt.mod(new BigInteger("97")).intValue() == 1;
     }
 
     private static BinMapping findBinMapping(String accountNumber, List<BinMapping> binMappings) {
