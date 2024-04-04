@@ -155,6 +155,8 @@ public class TransactionProcessorSample {
                     // ToDo Implementation
                 }
             }
+            event.message = "Invalid transaction type " + type;
+            events.add(event);
         }
         return events;
     }
