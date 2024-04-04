@@ -77,6 +77,8 @@ public class TransactionProcessorSample {
 
     private static List<Event> processTransactions(final List<User> users, final List<Transaction> transactions, final List<BinMapping> binMappings, final List<String> usedTransactionIds) {
         List<Event> events = new ArrayList<>();
+        List<Card> cards = new ArrayList<>();
+        List<Account> accounts = new ArrayList<>();
         for (Transaction transaction : transactions) {
             Event event = new Event();
             event.transactionId = transaction.getId();
@@ -103,41 +105,46 @@ public class TransactionProcessorSample {
             if (type.equals("DEPOSIT")) {
                 if (isWithinDepositRange(transaction, user, event, events)) continue;
                 if (method.equals("CARD")) {
-                    BinMapping binMapping = findBinMapping(transaction.getAccountNumber(), binMappings);
-                    if (binMapping == null) {
-                        event.message = "Invalid card number";
-                        events.add(event);
-                        continue;
+                    Card card = getCard(transaction.getAccountNumber(), cards);
+                    if (card == null) {
+                        BinMapping binMapping = findBinMapping(transaction.getAccountNumber(), binMappings);
+                        if (binMapping == null) {
+                            event.message = "Invalid card number";
+                            events.add(event);
+                            continue;
+                        }
+                        if (!binMapping.getCountry().equals(user.getCountry())) {
+                            event.message = "Invalid country " + binMapping.getCountry() + "; expected " + user.getCountry();
+                            events.add(event);
+                            continue;
+                        }
+                        if (binMapping.getType().equals("DC")) {
+                            event.message = "Only DC cards allowed";
+                            events.add(event);
+                            continue;
+                        }
+                        depositCard(usedTransactionIds, transaction, user, event, events);
+                        card = new Card(transaction.getAccountNumber(), user.getId(), binMapping.getCountry(), true);
+                        cards.add(card);
                     }
-                    if (!binMapping.getCountry().equals(user.getCountry())) {
-                        event.message = "Invalid country " + binMapping.getCountry() + "; expected " + user.getCountry();
-                        events.add(event);
-                        continue;
-                    }
-                    if (binMapping.getType().equals("DC")) {
-                        event.message = "Only DC cards allowed";
-                        events.add(event);
-                        continue;
-                    }
-                    user.deposit(transaction.getAmount());
-                    usedTransactionIds.add(transaction.getId());
-                    event.status = Event.STATUS_APPROVED;
-                    event.message = "OK";
-                    events.add(event);
+                    depositCard(usedTransactionIds, transaction, user, event, events);
                 } else if (method.equals("TRANSFER")) {
                     if (!isCheckDigitValid(transaction.getAccountNumber())) {
                         event.message = "Invalid iban " + transaction.getAccountNumber();
                     }
-                    user.deposit(transaction.getAmount());
-                    usedTransactionIds.add(transaction.getId());
-                    event.status = Event.STATUS_APPROVED;
-                    event.message = "OK";
-                    events.add(event);
+                    depositCard(usedTransactionIds, transaction, user, event, events);
                 }
             }
             else if (type.equals("WITHDRAW")) {
                 if (isWithinWithdrawRange(transaction, user, event, events)) continue;
                 if (method.equals("CARD")) {
+                    Card card = getCard(transaction.getAccountNumber(), cards);
+                    if (card == null) {
+                        event.message = "Cannot withdraw with a new account " + transaction.getAccountNumber();
+                        events.add(event);
+                        user.freeze();
+                        continue;
+                    }
                     BinMapping binMapping = findBinMapping(transaction.getAccountNumber(), binMappings);
                     if (binMapping == null) {
                         event.message = "Invalid card number";
@@ -159,6 +166,23 @@ public class TransactionProcessorSample {
             events.add(event);
         }
         return events;
+    }
+
+    private static void depositCard(List<String> usedTransactionIds, Transaction transaction, User user, Event event, List<Event> events) {
+        user.deposit(transaction.getAmount());
+        usedTransactionIds.add(transaction.getId());
+        event.status = Event.STATUS_APPROVED;
+        event.message = "OK";
+        events.add(event);
+    }
+
+    private static Card getCard(String accountNumber, List<Card> cards) {
+        for (Card card : cards) {
+            if (card.getCardNumber().equals(accountNumber)) {
+                return card;
+            }
+        }
+        return null;
     }
 
     private static boolean isCheckDigitValid(String accountNumber) {
